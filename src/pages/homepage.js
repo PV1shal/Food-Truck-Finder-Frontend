@@ -46,6 +46,8 @@ export default function Homepage() {
             navigator.geolocation.getCurrentPosition(
                 (position) => {
                     const { latitude, longitude } = position.coords;
+                    // const latitude = 37.755030726766726;
+                    // const longitude = -122.38453073422282;
                     setLocation({ latitude, longitude });
                 }
             );
