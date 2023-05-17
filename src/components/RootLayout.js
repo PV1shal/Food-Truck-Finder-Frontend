@@ -9,9 +9,14 @@ const ColorModeContext = createContext({ toggleColorMode: () => { }, darkMode: '
 
 const RootLayout = ({ children }) => {
     const [darkMode, setDarkMode] = useState('light');
+    const [searchLocation, setSearchLocation] = useState('');
 
     const toggleColorMode = () => {
         setDarkMode((prevMode) => (prevMode === 'dark' ? 'light' : 'dark'));
+    };
+
+    const handleSearchLocation = (location) => {
+        setSearchLocation(location);
     };
 
     const theme = createTheme({
@@ -35,9 +40,16 @@ const RootLayout = ({ children }) => {
                 <Head>
                     <title>Food Truck Finder</title>
                 </Head>
-                <TopNav />
+                <TopNav onSearchChange={handleSearchLocation} />
                 <ThemeProvider theme={theme}>
-                    <main style={mainStyle}>{children}</main>
+                    <main style={mainStyle}>
+                        {React.Children.map(children, (child) => {
+                            if (React.isValidElement(child)) {
+                                return React.cloneElement(child, { searchLocation });
+                            }
+                            return child;
+                        })}
+                    </main>
                 </ThemeProvider>
             </div>
         </ColorModeContext.Provider>
