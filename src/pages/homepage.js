@@ -2,8 +2,10 @@ import { useEffect, useState, Suspense, useContext } from 'react';
 import dynamic from 'next/dynamic';
 import 'leaflet/dist/leaflet.css';
 import { ColorModeContext } from '../components/RootLayout';
-import { Box, Card, CardContent, CircularProgress } from '@mui/material';
+import { Alert, Box, Card, CardContent, CircularProgress } from '@mui/material';
 import getLatLong from './api/getLatLong';
+import CloseIcon from '@mui/icons-material/Close';
+import { Close } from '@mui/icons-material';
 
 const MapContainer = dynamic(() => import('react-leaflet').then((module) => module.MapContainer), {
     ssr: false,
@@ -32,6 +34,7 @@ export default function Homepage(searchLocation) {
     const { toggleColorMode, darkMode } = useContext(ColorModeContext);
     const [foodTruckMarkers, setFoodTruckMarkers] = useState([]); // Track the food truck markers
     const [trucks, setTrucks] = useState([]); // Track the food trucks
+    const [locationError, setLocationError] = useState(false); // Track the location error
 
     let truckIcon;
     if (typeof window !== 'undefined') {
@@ -63,7 +66,8 @@ export default function Homepage(searchLocation) {
                     const coordinates = await getLatLong(searchLocation);
                     setLocation({ latitude: coordinates[1], longitude: coordinates[0] });
                 } catch (error) {
-                    console.error(error);
+                    setLocationError(true);
+                    // console.error(error);
                 }
             };
 
@@ -217,6 +221,22 @@ export default function Homepage(searchLocation) {
                                     </Card>
                                     {getTrucksList()}
                                 </Box>
+
+                                {locationError && (
+                                    <Alert
+                                        severity="error"
+                                        variant='filled'
+                                        action={
+                                            <Close onClick={() => setLocationError(false)} />
+                                        }
+                                        sx={{
+                                            position: 'absolute',
+                                            zIndex: 10000,
+                                            width: '100vw',
+                                            fontWeight: 'bold',
+                                        }}
+                                    >Error: Location Not Found!</Alert>
+                                )}
                             </div>
                     )
                 )}
