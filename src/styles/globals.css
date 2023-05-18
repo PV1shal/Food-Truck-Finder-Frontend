@@ -30,6 +30,7 @@ body {
   width: 100%;
   background-color: white;
   padding: 10px;
+  color: black;
 }
 
 /* .open {
@@ -40,4 +41,5 @@ body {
   width: 95%;
   height: 35px;
   font-size: large;
+  color: black;
 }
