@@ -3,7 +3,7 @@
 import { useEffect, useState, Suspense, useContext } from 'react';
 import 'leaflet/dist/leaflet.css';
 import { ColorModeContext } from '../components/RootLayout';
-import { Alert, Box, Card, CardContent, CircularProgress } from '@mui/material';
+import { Alert, Box, Card, CardContent, CircularProgress, Slider } from '@mui/material';
 import getLatLong from '@/pages/api/getLatLong';
 import { Close } from '@mui/icons-material';
 import { MapContainer, TileLayer, Marker, Popup, useLeafletContext } from 'react-leaflet';
@@ -64,6 +64,7 @@ export default function ClientMapComponent(searchLocation) {
     const [foodTruckMarkers, setFoodTruckMarkers] = useState([]);
     const [trucks, setTrucks] = useState([]);
     const [locationError, setLocationError] = useState(false);
+    const [radius, setRadius] = useState(500);
 
     useEffect(() => {
         const getLocation = () => {
@@ -97,7 +98,7 @@ export default function ClientMapComponent(searchLocation) {
     useEffect(() => {
         const getFoodTrucks = async () => {
             if (location.latitude && location.longitude) {
-                const response = await fetch(`https://data.sfgov.org/resource/rqzj-sfat.json?$where=within_circle(location, ${location.latitude}, ${location.longitude}, 500)`);
+                const response = await fetch(`https://data.sfgov.org/resource/rqzj-sfat.json?$where=within_circle(location, ${location.latitude}, ${location.longitude}, ${radius})`);
                 const data = await response.json();
                 setTrucks(data);
                 var markers = [];
@@ -122,7 +123,7 @@ export default function ClientMapComponent(searchLocation) {
         };
 
         getFoodTrucks();
-    }, [location]);
+    }, [location, radius]);
 
     const getTrucksList = () => {
         if (trucks.length === 0) {
@@ -188,6 +189,29 @@ export default function ClientMapComponent(searchLocation) {
                                 }}
                             >
                                 <MapContent location={location} foodTruckMarkers={foodTruckMarkers} />
+                                    <div
+                                        style={{
+                                            width: '20%',
+                                            position: 'absolute',
+                                            right: '1rem',
+                                            zIndex: 1000,
+                                            background: "white",
+                                            padding: "1rem",
+                                        }}
+                                    >
+                                        <b>Set Search Radius: </b>
+                                        <Slider
+                                            size='medium'
+                                            defaultValue={500}
+                                            aria-label="Search Radius"
+                                            valueLabelDisplay="auto"
+                                            step={100}
+                                            marks
+                                            min={100}
+                                            max={1000}
+                                            onChange={(event, value) => setRadius(value)}
+                                        />
+                                    </div>
                             </MapContainer>
                             <Box
                                 sx={{
@@ -211,7 +235,7 @@ export default function ClientMapComponent(searchLocation) {
                                             marginBottom: "1rem",
                                             textAlign: "center",
                                             fontWeight: "bold",
-                                        }}>Found {trucks.length} food trucks 500 meters near you!</h2>
+                                            }}>Found {trucks.length} food trucks {radius} meters near you!</h2>
                                     </CardContent>
                                 </Card>
                                 {getTrucksList()}
@@ -233,8 +257,9 @@ export default function ClientMapComponent(searchLocation) {
                             )}
                         </div>
                     )
-                )}
-            </Suspense>
-        </main>
+                )
+                }
+            </Suspense >
+        </main >
     );
 }
