@@ -34,7 +34,7 @@ const TopNav = ({ onSearchChange }) => {
                     Food Truck Finder
                 </Typography>
 
-                <TextField
+                {/* <TextField
                     id="outlined-basic"
                     label="Search Location"
                     variant="outlined"
@@ -56,7 +56,7 @@ const TopNav = ({ onSearchChange }) => {
                             </InputAdornment>
                         ),
                     }}
-                />
+                /> */}
 
                 <Button color="inherit" onClick={handleToggleColorMode} title='Change Theme'>
                     {darkMode === 'dark' ? <LightModeIcon /> : <DarkModeIcon />}

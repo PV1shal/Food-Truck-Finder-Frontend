@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, Suspense, useContext } from 'react';
+import { useEffect, useState, Suspense, useContext, useRef } from 'react';
 import 'leaflet/dist/leaflet.css';
 import { ColorModeContext } from '../components/RootLayout';
 import { Alert, Box, Card, CardContent, CircularProgress, Slider } from '@mui/material';
@@ -9,6 +9,7 @@ import { Close } from '@mui/icons-material';
 import { MapContainer, TileLayer, Marker, Popup, useLeafletContext } from 'react-leaflet';
 import L from 'leaflet';
 import { useMap } from 'react-leaflet';
+import { OpenStreetMapProvider, GeoSearchControl } from 'leaflet-geosearch';
 
 import 'leaflet/dist/leaflet.css';
 
@@ -19,13 +20,30 @@ const truckIcon = L.icon({
     popupAnchor: [0, -50],
 });
 
-function MapContent({ location, foodTruckMarkers }) {
+function MapContent({ location, locationChange, foodTruckMarkers }) {
     const { toggleColorMode, darkMode } = useContext(ColorModeContext);
     const map = useMap();
+    const provider = new OpenStreetMapProvider();
+    const searchControlRef = useRef(null);
 
     useEffect(() => {
         if (location.latitude && location.longitude) {
             map.setView([location.latitude, location.longitude], 32);
+            if (searchControlRef.current) {
+                map.removeControl(searchControlRef.current);
+            }
+            const searchControl = new GeoSearchControl({
+                provider,
+                showMarker: false,
+                searchLabel: 'Search Address',
+                showPopup: false,
+            });
+            map.addControl(searchControl);
+            searchControlRef.current = searchControl;
+
+            map.addEventListener('geosearch/showlocation', (event) => {
+                locationChange({ latitude: event.location.y, longitude: event.location.x });
+            });
         }
     }, [location, map]);
 
@@ -39,15 +57,14 @@ function MapContent({ location, foodTruckMarkers }) {
                         : 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
                 }
             />
-            <Marker position={[location.latitude, location.longitude]}
-                icon={
-                    L.icon({
-                        iconUrl: 'https://www.svgrepo.com/show/127575/location-sign.svg',
-                        iconSize: [50, 50],
-                        iconAnchor: [25, 50],
-                        popupAnchor: [0, -50],
-                    })
-                }
+            <Marker
+                position={[location.latitude, location.longitude]}
+                icon={L.icon({
+                    iconUrl: 'https://www.svgrepo.com/show/127575/location-sign.svg',
+                    iconSize: [50, 50],
+                    iconAnchor: [25, 50],
+                    popupAnchor: [0, -50],
+                })}
             >
                 <Popup>
                     <h1><b>You are here!</b></h1>
@@ -58,6 +75,7 @@ function MapContent({ location, foodTruckMarkers }) {
     );
 }
 
+
 export default function ClientMapComponent(searchLocation) {
     const [location, setLocation] = useState({});
     const [isLoading, setIsLoading] = useState(true);
@@ -65,6 +83,7 @@ export default function ClientMapComponent(searchLocation) {
     const [trucks, setTrucks] = useState([]);
     const [locationError, setLocationError] = useState(false);
     const [radius, setRadius] = useState(500);
+    const { toggleColorMode, darkMode } = useContext(ColorModeContext);
 
     useEffect(() => {
         const getLocation = () => {
@@ -185,17 +204,18 @@ export default function ClientMapComponent(searchLocation) {
                                 zoom={18}
                                 scrollWheelZoom={true}
                                 style={{
-                                    height: '93vh', width: '80%'
+                                    height: '93vh',
+                                    width: '80%',
                                 }}
                             >
-                                <MapContent location={location} foodTruckMarkers={foodTruckMarkers} />
+                                    <MapContent location={location} locationChange={setLocation} foodTruckMarkers={foodTruckMarkers} />
                                     <div
                                         style={{
                                             width: '20%',
                                             position: 'absolute',
                                             right: '1rem',
                                             zIndex: 1000,
-                                            background: "white",
+                                            background: darkMode === 'dark' ? '#1f1f1f' : '#ffffff',
                                             padding: "1rem",
                                         }}
                                     >
