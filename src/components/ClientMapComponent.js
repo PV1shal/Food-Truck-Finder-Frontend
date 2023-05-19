@@ -216,6 +216,7 @@ export default function ClientMapComponent(searchLocation) {
                         display: 'flex',
                         justifyContent: 'center',
                         alignItems: 'center',
+                        height: "93vh",
                     }}>
                         <CircularProgress />
                     </div>
