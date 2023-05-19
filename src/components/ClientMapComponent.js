@@ -193,9 +193,15 @@ export default function ClientMapComponent(searchLocation) {
                             color: '#7c7ebd',
                             fontSize: '1.25rem',
                         }}>{truck.applicant}</b></h1>
-                        <h2><b>Items Available: </b>{truck.fooditems}</h2>
-                        <p><b>Location: </b>{truck.locationdescription}</p>
-                        <p><b>Type: </b>{truck.facilitytype}</p>
+                        <h2 style={{
+                            padding: "10px"
+                        }}><b>Items Available: </b>{truck.fooditems ? truck.fooditems : "NA"}</h2>
+                        <p style={{
+                            padding: "10px"
+                        }}><b>Location: </b>{truck.locationdescription ? truck.locationdescription : "NA"}</p>
+                        <p style={{
+                            padding: "10px"
+                        }}><b>Type: </b>{truck.facilitytype ? truck.facilitytype : "NA"}</p>
                     </CardContent>
                 </Card>
             )
