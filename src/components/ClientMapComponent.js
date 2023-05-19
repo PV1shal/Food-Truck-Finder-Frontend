@@ -20,6 +20,13 @@ const truckIcon = L.icon({
     popupAnchor: [0, -50],
 });
 
+const pushTruckIcon = L.icon({
+    iconUrl: 'https://cdn-icons-png.flaticon.com/512/7702/7702556.png',
+    iconSize: [50, 50],
+    iconAnchor: [25, 50],
+    popupAnchor: [0, -50],
+});
+
 function MapContent({ location, locationChange, foodTruckMarkers }) {
     const { toggleColorMode, darkMode } = useContext(ColorModeContext);
     const map = useMap();
@@ -59,12 +66,14 @@ function MapContent({ location, locationChange, foodTruckMarkers }) {
             />
             <Marker
                 position={[location.latitude, location.longitude]}
-                icon={L.icon({
-                    iconUrl: 'https://www.svgrepo.com/show/127575/location-sign.svg',
-                    iconSize: [50, 50],
-                    iconAnchor: [25, 50],
-                    popupAnchor: [0, -50],
-                })}
+                icon={
+                    L.icon({
+                        iconUrl: 'https://www.svgrepo.com/show/127575/location-sign.svg',
+                        iconSize: [50, 50],
+                        iconAnchor: [25, 50],
+                        popupAnchor: [0, -50],
+                    })
+                }
             >
                 <Popup>
                     <h1><b>You are here!</b></h1>
@@ -126,12 +135,17 @@ export default function ClientMapComponent(searchLocation) {
                         <Marker
                             key={foodTruck.objectid}
                             position={[foodTruck.latitude, foodTruck.longitude]}
-                            icon={truckIcon}
+                            icon={
+                                foodTruck.facilitytype === 'Truck'
+                                    ? truckIcon
+                                    : pushTruckIcon
+                            }
                         >
                             <Popup>
                                 <h1><b>Name: </b>{foodTruck.applicant}</h1><br />
-                                <h2><b>Food items: </b>{foodTruck.fooditems}</h2>
+                                <h2><b>Food items: </b>{foodTruck.fooditems ? foodTruck.fooditems : "NA"}</h2>
                                 <p><b>Location: </b>{foodTruck.locationdescription ? foodTruck.locationdescription : "NA"}</p>
+                                <p><b>Type: </b>{foodTruck.facilitytype}</p>
                             </Popup>
                         </Marker>
                     );
@@ -163,6 +177,7 @@ export default function ClientMapComponent(searchLocation) {
             )
         }
         return trucks.map((truck) => {
+            console.log(truck);
             return (
                 <Card
                     key={truck.objectid}
@@ -174,9 +189,13 @@ export default function ClientMapComponent(searchLocation) {
                     }}
                 >
                     <CardContent>
-                        <h1><b>{truck.applicant}</b></h1>
-                        <h2>{truck.fooditems}</h2>
-                        <p>{truck.locationdescription}</p>
+                        <h1><b style={{
+                            color: '#7c7ebd',
+                            fontSize: '1.25rem',
+                        }}>{truck.applicant}</b></h1>
+                        <h2><b>Items Available: </b>{truck.fooditems}</h2>
+                        <p><b>Location: </b>{truck.locationdescription}</p>
+                        <p><b>Type: </b>{truck.facilitytype}</p>
                     </CardContent>
                 </Card>
             )
